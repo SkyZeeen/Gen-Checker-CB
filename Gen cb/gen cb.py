@@ -43,6 +43,26 @@ def is_valid_card_number(card_number):
     
     return luhn_algorithm(card_number)
 
+def is_valid_expiration_date(exp_date):
+    """Vérifie si la date d'expiration est valide (elle doit être dans le futur)."""
+    exp_month, exp_year = map(int, exp_date.split('/'))
+    exp_year += 2000  # Ajoute 2000 car l'année est en format YY
+    current_date = datetime.today()
+    
+    # Créer un objet datetime pour la date d'expiration
+    card_expiration = datetime(exp_year, exp_month, 1)
+    
+    # Vérifie que la carte n'est pas expirée
+    return card_expiration > current_date
+
+def is_valid_cvv(cvv):
+    """Vérifie si le CVV est valide (doit être composé de 3 chiffres)."""
+    return cvv.isdigit() and len(cvv) == 3
+
+def is_valid_card(card_number, exp_date, cvv):
+    """Vérifie si toute la carte est valide : numéro, date d'expiration et CVV."""
+    return is_valid_card_number(card_number) and is_valid_expiration_date(exp_date) and is_valid_cvv(cvv)
+
 def save_valid_cards(cards):
     """Sauvegarde les cartes valides dans le fichier valid.txt, après avoir vidé le fichier précédent."""
     with open("valid.txt", "w") as file:  # Ouvre le fichier en mode écriture pour effacer le contenu existant
@@ -94,7 +114,7 @@ def homepage():
         
         for _ in range(num_cards):
             card_number, exp_date, cvv = generate_credit_card(card_type)
-            valid = "Valide" if is_valid_card_number(card_number) else "Invalide"
+            valid = "Valide" if is_valid_card(card_number, exp_date, cvv) else "Invalide"
             if valid == "Valide":
                 valid_count += 1
                 valid_cards.append((card_number, exp_date, cvv))
